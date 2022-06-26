@@ -38,7 +38,7 @@ download_release() {
   version="$1"
   filename="$2"
 
-  url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}-$(get_platform)-$(get_arch).$(get_ext)"
+  url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}-$(get_platform)-$(get_arch).tar.gz"
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -70,13 +70,7 @@ install_version() {
 }
 
 get_platform() {
-  local platform
-  platform=$(uname -s | tr '[:upper:]' '[:lower:]')
-  if [ "$platform" = "darwin" ]; then
-    echo "macos"
-  else
-    echo "$platform"
-  fi
+  uname -s | tr '[:upper:]' '[:lower:]'
 }
 
 get_arch() {
@@ -98,36 +92,9 @@ get_arch() {
   esac
 }
 
-get_ext() {
-  local platform
-  platform=$(uname -s | tr '[:upper:]' '[:lower:]')
-  case $platform in
-  "linux")
-    echo "tar.gz"
-    ;;
-  "darwin")
-    echo "zip"
-    ;;
-  *)
-    exit 1
-    ;;
-  esac
-}
-
 extract() {
-  local file download_path ext
+  local file download_path
   file="$1"
   download_path="$2"
-  ext="$(get_ext)"
-  case $ext in
-  "tar.gz")
-    tar -xzf "$file" -C "$download_path"
-    ;;
-  "zip")
-    unzip "$file" -d "$download_path"
-    ;;
-  *)
-    exit 1
-    ;;
-  esac
+  tar -xzf "$file" -C "$download_path"
 }
